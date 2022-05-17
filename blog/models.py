@@ -52,6 +52,8 @@ class CustomUser(AbstractUser):
     Кастомная модел пользователя.
     При сохранении пользователя создается личный блог.
     '''
+    read_post = models.ManyToManyField(Post)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         Blog.objects.get_or_create(author=self)
@@ -76,7 +78,23 @@ class BlogFollow(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(
-            fields=['blog', 'follower'], name="uniq_follow")]
+            fields=['blog', 'follower'], name='uniq_follow')]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ['pk']
+
+
+# class PostState(models.Model):
+#     user = models.ForeignKey(
+#         CustomUser,
+#         on_delete=models.CASCADE,
+#         related_name='post_state',
+#         verbose_name='пользователь'
+#     )
+#     post = models.ManyToManyField(Post, unique=True)
+
+#     class Meta:
+#         constraints = [models.UniqueConstraint(
+#             fields=['user', 'post'], name='uniq_read')]
+#         verbose_name = 'Состояние'
+#         verbose_name_plural = 'Состояния'

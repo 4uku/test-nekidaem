@@ -58,9 +58,9 @@ class FollowBlogApi(APIView):
                 data={'message': 'Подписка/отписка на самого себя запрещена'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        obj, statement = BlogFollow.objects.get_or_create(
+        obj, state = BlogFollow.objects.get_or_create(
             blog=blog, follower=request.user)
-        if statement:
+        if state:
             return Response(
                 data={'message': 'Вы подписались на данный блог'},
                 status=status.HTTP_201_CREATED
@@ -95,4 +95,16 @@ class NewsFeedListApi(APIView):
             queryset=posts,
             request=request,
             view=self
+        )
+
+
+class MarkPostAsRead(APIView):
+    '''Маркировка постов прочитанными или нет'''
+
+    def get(self, request, post_id):
+        user = request.user
+        post = get_object_or_404(Post, id=post_id)
+        user.read_post.add(post)
+        return Response(
+            data={'message': 'Прочитано'}, status=status.HTTP_200_OK
         )
