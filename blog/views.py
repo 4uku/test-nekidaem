@@ -12,6 +12,9 @@ User = get_user_model()
 
 
 class AddPostApi(APIView):
+    '''
+    Добавление новых постов
+    '''
     permission_classes = [IsAuthenticated]
 
     class InputSerializer(serializers.Serializer):
@@ -36,26 +39,33 @@ class AddPostApi(APIView):
         )
         serializer.is_valid(raise_exception=True)
         Post.objects.create(author=request.user, **serializer.validated_data)
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(
+            data={'message': 'Пост добавлен'}, status=status.HTTP_201_CREATED
+        )
 
 
 class FollowBlogApi(APIView):
+    '''
+    Подписка/отписка на блог
+    '''
     permission_classes = [IsAuthenticated]
 
     def get(self, request, blog_id):
         blog = get_object_or_404(Blog, id=blog_id)
         if blog.author == request.user:
             return Response(
-                'Подписка на самого себя запрещена',
+                data={'message': 'Подписка/отписка на самого себя запрещена'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         obj, statement = BlogFollow.objects.get_or_create(
             blog=blog, follower=request.user)
         if statement:
             return Response(
-                'Подписка осуществлена', status=status.HTTP_201_CREATED
+                data={'message': 'Вы подписались на данный блог'},
+                status=status.HTTP_201_CREATED
             )
+        obj.delete()
         return Response(
-            'Вы уже подписаны на данного автора',
+            data={'message': 'ВЫ отписались от данного блога'},
             status=status.HTTP_400_BAD_REQUEST
         )
