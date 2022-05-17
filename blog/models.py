@@ -11,6 +11,12 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         related_name='posts',
         verbose_name='автор')
+    blog = models.ForeignKey(
+        'Blog',
+        on_delete=models.CASCADE,
+        related_name='posts',
+        verbose_name='блог'
+    )
     title = models.CharField('заголовок', max_length=12)
     text = models.CharField('текст', max_length=140)
     pub_date = models.DateTimeField('дата создания', auto_now_add=True)
@@ -18,7 +24,7 @@ class Post(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(
             fields=['author', 'title'], name='unique_post')]
-        ordering = ['pub_date']
+        ordering = ['-pub_date']
         verbose_name = 'Пост'
         verbose_name_plural = 'Посты'
 
@@ -33,13 +39,6 @@ class Blog(models.Model):
         related_name='blog',
         verbose_name='автор',
         unique=True)
-    post = models.ForeignKey(
-        Post,
-        on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True,
-        related_name='posts',
-        verbose_name='пост')
     created_date = models.DateTimeField('дата создания', auto_now_add=True)
 
     class Meta:

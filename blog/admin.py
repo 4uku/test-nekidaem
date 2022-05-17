@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Blog, CustomUser, Post, BlogFollow
+from .models import Blog, BlogFollow, CustomUser, Post
 
 
 @admin.register(Blog)

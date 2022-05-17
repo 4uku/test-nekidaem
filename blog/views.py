@@ -2,19 +2,20 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Post, BlogFollow, Blog
+from .models import Blog, BlogFollow, Post
+from .pagination import get_paginated_response
 
 User = get_user_model()
 
 
 class AddPostApi(APIView):
-    '''
-    Добавление новых постов
-    '''
+    '''Добавление новых постов'''
+
     permission_classes = [IsAuthenticated]
 
     class InputSerializer(serializers.Serializer):
@@ -38,16 +39,16 @@ class AddPostApi(APIView):
             data=request.data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
-        Post.objects.create(author=request.user, **serializer.validated_data)
+        Post.objects.create(author=request.user, blog=request.user.blog,
+                            **serializer.validated_data)
         return Response(
             data={'message': 'Пост добавлен'}, status=status.HTTP_201_CREATED
         )
 
 
 class FollowBlogApi(APIView):
-    '''
-    Подписка/отписка на блог
-    '''
+    '''Подписка/отписка на блог'''
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, blog_id):
@@ -68,4 +69,30 @@ class FollowBlogApi(APIView):
         return Response(
             data={'message': 'ВЫ отписались от данного блога'},
             status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class NewsFeedListApi(APIView):
+    '''Вывод ленты новостей'''
+    permission_classes = [IsAuthenticated]
+
+    class NewsFeedListSetPagination(PageNumberPagination):
+        page_size = 10
+        page_size_query_param = 'page_size'
+
+    class OutputSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Post
+            fields = ('author', 'title', 'text', 'pub_date')
+
+    def get(self, request):
+        user = request.user
+        posts = Post.objects.filter(
+            blog__followers__in=user.blogs.values('id'))[:500]
+        return get_paginated_response(
+            pagination_class=self.NewsFeedListSetPagination,
+            serializer_class=self.OutputSerializer,
+            queryset=posts,
+            request=request,
+            view=self
         )
