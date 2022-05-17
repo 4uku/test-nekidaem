@@ -123,7 +123,7 @@ REST_FRAMEWORK = {
 }
 
 CRONJOBS = [
-    ('*/1 * * * *', 'test_app.cron.my_job', '>> ./cron.log')
+    ('0 18 * * *', 'test_app.cron.my_job', '>> ./cron.log')
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
