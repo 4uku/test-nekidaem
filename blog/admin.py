@@ -1,10 +1,16 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-from .models import Blog, CustomUser, Post
+from .models import Blog, CustomUser, Post, BlogFollow
 
 
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(BlogFollow)
+class BlogFollowAdmin(admin.ModelAdmin):
     pass
 
 
@@ -14,5 +20,5 @@ class PostAdmin(admin.ModelAdmin):
 
 
 @admin.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(UserAdmin):
     pass

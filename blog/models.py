@@ -58,26 +58,26 @@ class CustomUser(AbstractUser):
         Blog.objects.get_or_create(author=self)
 
 
-class BlogFollows(models.Model):
+class BlogFollow(models.Model):
     '''
     Модель подписки
     '''
-    user = models.ForeignKey(
-        CustomUser,
-        on_delete=models.CASCADE,
-        related_name='followings',
-        verbose_name='подписки'
-    )
-    author = models.ForeignKey(
-        CustomUser,
+    blog = models.ForeignKey(
+        Blog,
         on_delete=models.CASCADE,
         related_name='followers',
+        verbose_name='блог'
+    )
+    follower = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='blogs',
         verbose_name='подписчики'
     )
 
     class Meta:
         constraints = [models.UniqueConstraint(
-            fields=['user', 'author'], name="uniq_follow")]
+            fields=['blog', 'follower'], name="uniq_follow")]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ['pk']

@@ -1,8 +1,10 @@
 from django.urls import path
 
-from .views import UserNewsFeedListApi
+from .views import AddPostApi, FollowBlogApi
 
 urlpatterns = [
-    path('blog/<str:username>/add_post/', UserNewsFeedListApi.as_view(),
-         name='news_feed'),
+    path('blog/add_post/', AddPostApi.as_view(),
+         name='add_post'),
+    path('blog/<int:blog_id>/follow/', FollowBlogApi.as_view(),
+         name='follow_blog')
 ]
